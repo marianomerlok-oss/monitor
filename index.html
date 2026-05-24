@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor Politico - Gran La Plata</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FFFFFF;--border:#E2DDD6;
+  --text:#1A1714;--muted:#7A7168;--accent:#2B4C8C;
+  --tag-bg:#EAE6DE;--tag-text:#4A4238;
+  --radius:10px;
+}
+body{font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.25rem;display:flex;align-items:baseline;gap:.75rem;flex-wrap:wrap}
+header h1{font-size:1.15rem;font-weight:600;letter-spacing:-.01em}
+header .sub{font-size:.75rem;color:var(--muted);font-weight:300}
+#stats{margin-left:auto;font-size:.75rem;color:var(--muted)}
+#stats strong{color:var(--text);font-weight:500}
+#controls{background:var(--surface);border-bottom:1px solid var(--border);padding:.6rem 1.25rem;display:flex;gap:.4rem;flex-wrap:wrap;align-items:center}
+#controls label{font-size:.72rem;color:var(--muted)}
+select,input[type=search]{font-family:inherit;font-size:.78rem;padding:.3rem .55rem;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--text);outline:none}
+#search{flex:1;min-width:140px;max-width:260px}
+#btn-reset{font-family:inherit;font-size:.72rem;padding:.3rem .7rem;border:1px solid var(--border);border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;margin-left:auto}
+#main{padding:1rem 1rem 3rem}
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.85rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem .9rem;display:flex;flex-direction:column;gap:.5rem}
+.card-meta{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.card-fecha{font-size:.68rem;color:var(--muted);font-weight:300}
+.card-jur{font-size:.65rem;font-weight:500;padding:.15rem .5rem;border-radius:20px;background:var(--tag-bg);color:var(--tag-text)}
+.card-score{margin-left:auto;font-size:.65rem;font-weight:500;padding:.15rem .45rem;border-radius:20px;color:#fff}
+.s-high{background:#1A5C2A}.s-med{background:#2B4C8C}.s-low{background:#7A7168}
+.card-title{font-size:.95rem;font-weight:500;line-height:1.4;color:var(--text)}
+.card-actores{font-size:.7rem;color:var(--muted);font-style:italic}
+.card-parrafo{font-size:.78rem;color:var(--muted);line-height:1.55;display:none;border-top:1px solid var(--border);padding-top:.5rem;margin-top:.1rem}
+.card-parrafo.open{display:block}
+.card-actions{display:flex;gap:.4rem;margin-top:auto;padding-top:.5rem;border-top:1px solid var(--border)}
+.btn{font-family:inherit;font-size:.72rem;font-weight:500;padding:.38rem .75rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:.25rem;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+#empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:.9rem;display:none}
+@media(max-width:500px){#grid{grid-template-columns:1fr}#stats{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Monitor Politico</h1>
+  <span class="sub">Gran La Plata</span>
+  <div id="stats">Total: <strong id="st-t">0</strong> &nbsp; Mostrando: <strong id="st-v">0</strong></div>
+</header>
+<div id="controls">
+  <label>Jurisdiccion</label>
+  <select id="fil-jur"><option value="">Todas</option></select>
+  <label style="margin-left:.4rem">Orden</label>
+  <select id="fil-orden">
+    <option value="score">Score</option>
+    <option value="fecha">Fecha</option>
+    <option value="titulo">Titulo A-Z</option>
+  </select>
+  <input type="search" id="search" placeholder="Buscar titulo..." autocomplete="off">
+  <button id="btn-reset">Limpiar</button>
+</div>
+<div id="main">
+  <div id="empty">Sin resultados para los filtros seleccionados.</div>
+  <div id="grid"></div>
+</div>
+<script>
+const NOTICIAS=[{"jurisdiccion": "La Plata", "score": 20, "actores": "alak, julio alak", "titulo": "Aprueban la rendición de cuentas de Alak - Diario Hoy En la noticia", "url": "https://diariohoy.net/politica/aprueban-la-rendicion-de-cuentas-de-alak-283685", "fecha": "sin fecha", "parrafo": "El Concejo Deliberante de La Plata aprobó este jueves por mayoría la Rendición de Cuentas de la administración de Julio Alak correspondiente a 2025. El expediente, uno de los más importantes de cada año junto con el Presupuesto y la Ordenanza Fiscal Impositiva, contó con el acompañamiento de los tres unibloques opositores, además de la bancada oficialista."}, {"jurisdiccion": "La Plata", "score": 17, "actores": "kicillof, axel kicillof", "titulo": "Alberto Fernández: “A mí no me lo cuenten al kirchnerismo, lo creé con Néstor”", "url": "https://diagonales.com/nacion/alberto-fernandez---a-mi-no-me-lo-cuenten-al-kirchnerismo--lo-cree-con-nestor-_a6a10c8b40a3ce39269dd2adc", "fecha": "2026-05-22 21:20", "parrafo": "El expresidenteAlberto Fernándeztomó posición en la interna en el peronismo nacional y, tras la asunción del gobernadorAxel Kicillofcomo líder del Partido Justicialista (PJ) Bonaerense, defendió su “inteligencia” y “honestidad” y planteó:“Cuando tenemos una crítica nos llaman traidores, pero ¿alguien puede dudar de su compromiso con Cristina Fernández de Kirchner (CFK)?”.“Axel y yo fuimos parte del kirchnerismo. A mí no me lo cuenten al kirchnerismo, lo creé con Néstor Kirchnercuando todos decían que éramos dos delirantes que podíamos llegar a la Presidencia. A mí no me lo cuenten.Como fuimos parte de eso, cuando tenemos una crítica nos llaman traidores”, apuntó el exmandatario en diálogo conEn Agendaeste viernes.“Muchos otros no fueron parte de eso y entonces tienen una tolerancia mayor… Está bien, lo entiendo. Axel también. ¿Alguien puede dudar del compromiso que Axel tiene con CFK?”, continuó en referencia al conflicto entre el sector del Gobernador bonaerense y el de La Cámpora, liderado por la exmandataria.En ese sentido, Alberto Fernández destacó queKicillof \"es una persona muy inteligente, estudiosa, trabajadora y honesta\"y señaló que \"tiene criterio\", por lo que pidió que dentro del peronismo se lo respete: \"Muchas veces yo tampoco estoy de acuerdo con él perono puedo dejar de respetarlo\". Luego remarcó:\"Es el Gobernador de Buenos Aires, es el Gobernador del 40% del Producto Bruto Interno (PBI) argentino\"."}, {"jurisdiccion": "La Plata", "score": 10, "actores": "kicillof, axel kicillof", "titulo": "Axel Kicillof desde Tornquist: \"Es zona fría y el gobierno de Milei la está afectando\" | Infocielo", "url": "https://www.infocielo.com/politica-y-economia/axel-kicillof-desde-tornquist-es-zona-fria-y-el-gobierno-de-milei-la-esta-afectando", "fecha": "2026-05-23 12:01", "parrafo": "En el marco de una visita institucional a la localidad deTornquist, el gobernador de la provincia de Buenos Aires,Axel Kicillof, lanzó una fuerte advertencia sobre el impacto que tendrá la quita del beneficio de“Zona Fría”en el territorio bonaerense."}, {"jurisdiccion": "La Plata", "score": 10, "actores": "kicillof, axel kicillof", "titulo": "Uno de los sindicatos más poderosos del país mete un pie en el Ministerio de Trabajo de Kicillof | Infocielo", "url": "https://www.infocielo.com/politica-y-economia/uno-de-los-sindicatos-mas-poderosos-del-pais-mete-un-pie-en-el-ministerio-de-trabajo-de-kicillof", "fecha": "2026-05-23 18:07", "parrafo": "La gestión delgobernador Axel Kicillofsumó una nueva pieza a su estructura ligada directamente al riñón del sindicalismo tradicional. Se trata de la incorporación deRomina Santana al Ministerio de Trabajo bonaerense, conducido por Walter Correa. El movimiento no pasa desapercibido: Santana es una pieza clave en el esquema de la Federación Argentina de Empleados de Comercio y Servicios (FAECYS),la organización sindical más grande y con mayor cantidad de afiliados de toda la Argentina, liderada históricamente porArmando Cavalieri."}, {"jurisdiccion": "La Plata", "score": 8, "actores": "kicillof, axel kicillof", "titulo": "Kicillof contra el ajuste de Milei: “Cinco millones de bonaerenses no van a poder pagar la luz y el gas”", "url": "https://diagonales.com/provincia/-kicillof-contra-el-ajuste-de-milei---cinco-millones-de-bonaerenses-no-van-a-poder-pagar-la-luz-y-el-gas-_a6a11c7e90a3ce3926904a00c", "fecha": "2026-05-23 18:48", "parrafo": "Desde Tornquist, con 4 grados a las 9 de la mañana, el gobernadorAxel Kicillof eligió el frío para ilustrar una nueva decisión cruel del gobierno nacional.En un posteo en sus redes sociales, el mandatario bonaerense salió con fuerzacontra la modificación del régimen de Zona Fríaque impulsa la administración Milei y que, según advirtió, dejará sin tarifas diferenciales a \"tres millones de hogares\", es decir que afecta a \"cinco millones de habitantes\" de la provincia de Buenos Aires.\"Las familias necesitan tarifas diferenciales para poder afrontar el invierno\", manifestó Kicillof, que describió la medida como un golpe directo al bolsillo de quienes menos pueden.Cabe señalar que el régimen de Zona Fría existe precisamente paracompensar el mayor consumo energético que exige el clima en determinadas regiones del país.Tocarlo en plena temporada invernal tiene un costo social que el gobernador no tardó en señalar.X de Axel Kicillof\"Por crueldad, por ignorancia, el gobierno nacional vuelve a complicarle la vida a los argentinos\", lanzó el principal opositor a Javier Milei.Y cerró con un pedido explícito a la Cámara Alta para que baje el pulgar al proyecto: \"El senado tiene que rechazar este proyecto\"."}, {"jurisdiccion": "La Plata", "score": 6, "actores": "kicillof, axel kicillof", "titulo": "Bianco fue operado de apendicitis durante gira en España - Diario Hoy En la noticia", "url": "https://diariohoy.net/politica/bianco-fue-operado-de-apendicitis-durante-gira-en-espana-282501", "fecha": "sin fecha", "parrafo": "El ministro bonaerense se recupera en Barcelona tras la cirugía y seguirá la agenda oficial junto a Kicillof."}];
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function fmtFecha(f){
+  if(!f||f==='sin fecha') return 'Sin fecha';
+  const d=new Date(f);
+  if(isNaN(d)) return f;
+  return d.toLocaleDateString('es-AR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function scoreClass(s){return s>=12?'s-high':s>=7?'s-med':'s-low'}
+const filJur=document.getElementById('fil-jur');
+const filOrden=document.getElementById('fil-orden');
+const search=document.getElementById('search');
+const grid=document.getElementById('grid');
+const empty=document.getElementById('empty');
+const jurs=[...new Set(NOTICIAS.map(n=>n.jurisdiccion))].sort();
+jurs.forEach(j=>{const o=document.createElement('option');o.value=j;o.textContent=j;filJur.appendChild(o)});
+function render(){
+  const jur=filJur.value,ord=filOrden.value,q=search.value.toLowerCase().trim();
+  let lista=NOTICIAS.filter(n=>{
+    if(jur&&n.jurisdiccion!==jur)return false;
+    if(q&&!n.titulo.toLowerCase().includes(q))return false;
+    return true;
+  });
+  if(ord==='score')lista.sort((a,b)=>b.score-a.score);
+  else if(ord==='fecha')lista.sort((a,b)=>b.fecha.localeCompare(a.fecha));
+  else lista.sort((a,b)=>a.titulo.localeCompare(b.titulo));
+  document.getElementById('st-t').textContent=NOTICIAS.length;
+  document.getElementById('st-v').textContent=lista.length;
+  empty.style.display=lista.length===0?'block':'none';
+  grid.innerHTML='';
+  lista.forEach(n=>{
+    const tieneP=n.parrafo&&n.parrafo.trim().length>10;
+    const tieneU=n.url&&n.url.startsWith('http');
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <div class="card-meta">
+        <span class="card-fecha">${esc(fmtFecha(n.fecha))}</span>
+        <span class="card-jur">${esc(n.jurisdiccion)}</span>
+        <span class="card-score ${scoreClass(n.score)}">Score ${n.score}</span>
+      </div>
+      <p class="card-title">${esc(n.titulo)}</p>
+      ${n.actores?`<p class="card-actores">${esc(n.actores)}</p>`:''}
+      ${tieneP?`<div class="card-parrafo">${esc(n.parrafo)}</div>`:''}
+      <div class="card-actions">
+        ${tieneP?`<button class="btn btn-leer">Ver parrafo</button>`:''}
+        ${tieneU?`<a class="btn btn-primary" href="${esc(n.url)}" target="_blank">Ver nota</a>`:''}
+      </div>`;
+    if(tieneP){
+      const btn=card.querySelector('.btn-leer');
+      const par=card.querySelector('.card-parrafo');
+      btn.addEventListener('click',()=>{
+        const ab=par.classList.toggle('open');
+        btn.textContent=ab?'Cerrar':'Ver parrafo';
+      });
+    }
+    grid.appendChild(card);
+  });
+}
+filJur.addEventListener('change',render);
+filOrden.addEventListener('change',render);
+search.addEventListener('input',render);
+document.getElementById('btn-reset').addEventListener('click',()=>{filJur.value='';filOrden.value='score';search.value='';render()});
+render();
+</script>
+</body>
+</html>
